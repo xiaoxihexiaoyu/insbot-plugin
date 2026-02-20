@@ -1,0 +1,7 @@
+{
+  "name": "insbot",
+  "version": "1.0.0",
+  "description": "Instagram 自动化评论工具插件 - 通过自然语言控制 InstaBot",
+  "skills": ["./skills/", "./commands/"],
+  "agents": ["./agents/insbot-agent.md"]
+}
