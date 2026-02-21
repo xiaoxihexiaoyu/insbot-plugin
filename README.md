@@ -12,39 +12,81 @@
 - 📋 **URL 批量模式**：批量处理预设的帖子 URL 列表
 - 🌱 **养号模式**：模拟真实用户行为，降低风控风险
 
-## 安装
+## 第一次使用（安装）
 
-### 方式一：项目级安装（推荐）
+### 1. 安装依赖
 
 ```bash
-# 在你的项目目录下
+cd insta_bot_ui
+npm install
+```
+
+### 2. 准备 AdsPower
+
+- 下载并运行 [AdsPower](https://www.adspower.net/)
+- 创建浏览器配置（账号1、账号2...）
+
+### 3. 加载插件
+
+```bash
+cd E:\work\echowork\automat_review
 claude --plugin-dir ./insbot-plugin
 ```
 
-### 方式二：用户级安装
+**注意**：序列号自动从 AdsPower 获取，无需手动配置。
+
+---
+
+## 每次使用
+
+### 直接使用命令
+
+**无需手动启动服务** - 插件会自动检测并在后台启动 API 服务器。
 
 ```bash
-# 复制到用户级插件目录
-cp -r insbot-plugin ~/.claude/plugins/insbot
+# 关键词搜索
+/insbot:keyword 账号5 搜索 #美食
+
+# AI 智能评论
+/insbot:keyword 环境1 搜索 #ootd AI评论
+
+# 养号模式
+/insbot:nurture 账号3 浏览 #fashion
+
+# 查看状态
+/insbot:insbot 查看状态
 ```
 
-## 前置要求
+### 执行时会询问
 
-1. **AdsPower** 正在运行
-   - 下载：https://www.adspower.net/
+执行命令后，插件会询问：
 
-2. **启动 API 服务器**
-   ```bash
-   cd insta_bot_ui
-   npm install
-   node api/server.js
-   ```
+1. **评论总数**（默认10条，可自定义）
+2. **是否多账号轮换**（单账号 / 多账号轮换）
 
-3. **配置浏览器账号**
-   - 在 AdsPower 中创建浏览器配置
-   - 记录每个浏览器的序列号（Serial Number）
+### 注意事项
 
-## 使用
+- **账号1 = 环境1**：同一概念，都指 AdsPower 浏览器配置
+- **序列号自动获取**：无需手动配置
+- **确保 AdsPower 运行**：使用前请先启动 AdsPower
+
+在 Claude Code 中直接输入：
+
+```bash
+# 查看状态
+/insbot:insbot 查看机器人状态
+
+# 关键词搜索
+/insbot:keyword 账号1 搜索 #ootd
+
+# URL 批量
+/insbot:url 账号1 文件 urls.csv
+
+# 养号模式
+/insbot:nurture 账号1 浏览 #fashion
+```
+
+---
 
 ### 主命令（自然语言）
 
@@ -113,19 +155,44 @@ curl http://localhost:3000/api/status
 
 ## 配置示例
 
-### 关键词搜索
+### 关键词搜索（支持 Post/Reel 选择）
 
 ```json
 {
   "mode": "keyword",
   "accounts": [
-    {"name": "账号1", "serialNumber": "BROWSER_SERIAL_001"}
+    {"name": "账号1", "serialNumber": "5"}
   ],
-  "searchQueries": ["#ootd", "fashion"],
+  "searchQueries": ["#ootd", "@competitor1"],
+  "maxComments": 10,
   "postsPerQuery": 5,
-  "comments": ["Great!", "Nice!", "Love it!"],
-  "maxComments": 50,
-  "waitTime": {"min": 20, "max": 60}
+  "postSelectionMode": "separate",
+  "postSeparate": 0,
+  "reelSeparate": 5,
+  "aiConfig": {
+    "apiKey": "your-api-key",
+    "style": "friendly"
+  },
+  "comments": ["Nice!", "Great!"]
+}
+```
+
+**帖子选择模式：**
+
+| 模式 | 说明 | 参数 |
+|------|------|------|
+| `random` | 完全随机混合 | `postSelectionMode: "random"` |
+| `post-first` | 优先 Post，不够用 Reel 补 | `postSelectionMode: "post-first"` |
+| `ratio` | 按比例分配 | `postSelectionMode: "ratio"`, `postRatio: 2`, `reelRatio: 1` |
+| `separate` | 分别指定数量 | `postSelectionMode: "separate"`, `postSeparate: 2`, `reelSeparate: 3` |
+
+**只评论 Reel 示例：**
+```json
+{
+  "searchQueries": ["@silent_gourmet__asmr"],
+  "postSelectionMode": "separate",
+  "postSeparate": 0,
+  "reelSeparate": 3
 }
 ```
 
@@ -137,7 +204,7 @@ curl http://localhost:3000/api/status
   "accounts": [
     {
       "name": "账号1",
-      "serialNumber": "BROWSER_SERIAL_001",
+      "serialNumber": "5",
       "urls": ["https://www.instagram.com/p/ABC123/"]
     }
   ],
@@ -148,21 +215,34 @@ curl http://localhost:3000/api/status
 }
 ```
 
-### 养号模式
+### 养号模式（支持 @账号 和 Post/Reel 选择）
 
 ```json
 {
   "mode": "nurture",
   "accounts": [
-    {"name": "账号1", "serialNumber": "BROWSER_SERIAL_001"}
+    {"name": "账号1", "serialNumber": "5"}
   ],
-  "nurtureTopics": ["#fashion", "#style"],
-  "nurturePostsPerTopic": 10,
+  "nurtureTopics": ["@competitor1", "#fashion"],
+  "nurturePostsPerTopic": 5,
   "nurtureLikeRate": 70,
   "nurtureCommentRate": 20,
-  "maxComments": 50
+  "nurtureViewMin": 5,
+  "nurtureViewMax": 8,
+  "reelOnly": false,
+  "postOnly": false
 }
 ```
+
+**话题格式：**
+- `#标签` - 搜索话题（如 `#fashion`）
+- `@用户名` - 访问用户主页（如 `@competitor1`）
+- `关键词` - 搜索关键词（如 `美食`）
+
+**帖子过滤：**
+- `postOnly: true` - 只处理 Post
+- `reelOnly: true` - 只处理 Reel
+- 默认 - Post + Reel 混合
 
 ## 风控建议
 

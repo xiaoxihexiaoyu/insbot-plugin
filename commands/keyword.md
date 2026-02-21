@@ -1,21 +1,37 @@
 ---
-description: 关键词搜索模式快捷命令 - 通过搜索关键词、标签或用户来发现帖子并评论
+description: 关键词搜索模式 - 搜索标签、用户或关键词来发现帖子并评论
 ---
 
 # 关键词搜索模式
 
-## 使用方式
+## 使用
 
 ```
-/insbot:keyword <账号> <搜索内容> [评论内容]
+/insbot:keyword <账号/环境> <搜索内容> [AI评论]
 ```
 
 ## 示例
 
 ```
-/insbot:keyword 账号1 搜索 #ootd
-/insbot:keyword 账号5 搜索 @competitor1
-/insbot:keyword 账号2 搜索 fitness
-/insbot:keyword 账号1 搜索 #fashion 评论"Nice!"
-/insbot:keyword 账号1 搜索 #fitness AI评论
+/insbot:keyword 环境5 搜索 #food
+/insbot:keyword 账号1 搜索 @fitness_tutor AI评论
+/insbot:keyword 账号3 搜索 美食
 ```
+
+## 搜索格式
+
+| 格式 | 说明 | 示例 |
+|------|------|------|
+| `@用户名` | 搜索用户帖子 | `@fitness_tutor` |
+| `#标签` | 搜索话题 | `#ootd` `#美食` |
+| `关键词` | 搜索关键词 | `fashion` `美食` |
+
+## 执行时会询问
+
+1. **评论总数**（默认10条）
+2. **是否多账号轮换**
+
+## 注意
+
+- **账号1 = 环境1**：同一概念
+- **序列号自动获取**：无需手动配置
